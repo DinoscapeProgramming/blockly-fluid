@@ -1,0 +1,19 @@
+{
+  "name": "blockly-fluid",
+  "version": "1.1.1",
+  "description": "A flexible proxy wrapper for Blockly blocks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "blockly",
+    "blocks",
+    "fluid",
+    "proxy",
+    "wrapper"
+  ],
+  "author": "DinoscapeProgramming",
+  "license": "MIT",
+  "type": "commonjs"
+}
