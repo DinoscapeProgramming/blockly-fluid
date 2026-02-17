@@ -61,8 +61,10 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                   if (typeof input.default === "function") (input.default = input.default());
                   if (typeof input.options === "function") (input.options = input.options());
 
-                  if (!Blocks[`shadow_dropdown_${token}`]) {
-                    Blocks[`shadow_dropdown_${token}`] = {
+                  const shadowDropdownName = `shadow_dropdown_${name.length}_${name}_${token.length}_${token}`;
+
+                  if (!Blocks[shadowDropdownName]) {
+                    Blocks[shadowDropdownName] = {
                       layout: "DROPDOWN",
                       fields: {
                         DROPDOWN: {
@@ -81,14 +83,16 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                     };
                   };
 
-                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_dropdown_${escapeXml(token)}}"></shadow>`, "text/xml").firstChild);
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="${escapeXml(shadowDropdownName)}}"></shadow>`, "text/xml").firstChild);
                 };
 
                 if (input.variable) {
                   if (typeof input.variable === "function") (input.variable = input.variable());
 
-                  if (!Blocks[`shadow_variable_${token}`]) {
-                    Blocks[`shadow_variable_${token}`] = {
+                  const shadowVariableName = `shadow_variable_${name.length}_${name}_${token.length}_${token}`;
+
+                  if (!Blocks[shadowVariableName]) {
+                    Blocks[shadowVariableName] = {
                       layout: "VARIABLE",
                       fields: {
                         VARIABLE: {
@@ -105,7 +109,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                     };
                   };
 
-                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_variable_${escapeXml(token)}"><field name="VARIABLE">${input.variable}</field></shadow>`, "text/xml").firstChild);
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="${escapeXml(shadowVariableName)}"><field name="VARIABLE">${input.variable}</field></shadow>`, "text/xml").firstChild);
                 };
 
                 if (input.shadow) {
