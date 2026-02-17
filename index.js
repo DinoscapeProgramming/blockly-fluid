@@ -83,7 +83,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                     };
                   };
 
-                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="${escapeXml(shadowDropdownName)}}"></shadow>`, "text/xml").firstChild);
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="${escapeXml(shadowDropdownName)}"></shadow>`, "text/xml").firstChild);
                 };
 
                 if (input.variable) {
