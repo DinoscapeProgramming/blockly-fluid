@@ -1,29 +1,37 @@
+const escapeXml = require("./utils/escapeXml.js");
+
 module.exports = (Blockly, { generator: languageGeneratorFallback, generators: languageGenerators = {}, translate = (text) => text } = {}) => {
   const Blocks = new Proxy({}, {
-    set(_, name, {
-      hat,
-      layout = [],
-      inputs = {},
-      fields = {},
-      statements = {},
-      previous = !hat,
-      next = true,
-      output,
-      color,
-      inline = true,
-      deletable = true,
-      tooltip = "",
-      help = "",
-      generator: blockGeneratorFallback,
-      generators: blockGenerators = {}
-    }) {
-      Blockly.Blocks[name] = {
-        init: function () {
-          if ((typeof hat === "function") ? hat() : hat) this.setStyle("hat_blocks");
+    set(_, name, configuration = {}) {
+      if (typeof configuration === "function") (configuration = configuration());
 
+      let {
+        layout = [],
+        inputs = {},
+        fields = {},
+        statements = {},
+        hat,
+        previous = !hat,
+        next = true,
+        output,
+        color,
+        inline = true,
+        deletable = true,
+        tooltip = "",
+        help = "",
+        generator: blockGeneratorFallback,
+        generators: blockGenerators = {}
+      } = configuration;
+
+      Blockly.Blocks[name] = {
+        ...Blockly.Blocks[name],
+
+        init: function () {
           if (typeof layout === "function") (layout = layout());
           if (typeof inputs === "function") (inputs = inputs());
           if (typeof statements === "function") (statements = statements());
+
+          color = (color != null) ? ((typeof color === "function") ? color() : color) : (((toolbox) => toolbox.contents_ || toolbox.contents.values())(Blockly.getMainWorkspace().getToolbox()).find((category) => category.toolboxItemDef_.contents?.some((block) => block.type === name))?.toolboxItemDef_?.colour || "#000000");
 
           if ((Array.isArray(layout)) ? layout.length : ((typeof layout === "string") ? layout : false)) {
             ((Array.isArray(layout)) ? layout : [layout]).forEach((token) => {
@@ -46,13 +54,64 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
                   valueInput.setCheck(input.check || null);
                 } else {
-                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="string"><field name="TEXT"></field></shadow>`, "text/xml").firstChild);
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_string"><field name="TEXT"></field></shadow>`, "text/xml").firstChild);
+                };
+
+                if (input.options) {
+                  if (typeof input.default === "function") (input.default = input.default());
+                  if (typeof input.options === "function") (input.options = input.options());
+
+                  if (!Blocks[`shadow_dropdown_${token}`]) {
+                    Blocks[`shadow_dropdown_${token}`] = {
+                      layout: "DROPDOWN",
+                      fields: {
+                        DROPDOWN: {
+                          type: "dropdown",
+                          default: input.default,
+                          options: input.options
+                        }
+                      },
+                      color,
+                      output: true,
+
+                      generator: ({ DROPDOWN }) => [
+                        `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
+                        "atomic"
+                      ]
+                    };
+                  };
+
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_dropdown_${escapeXml(token)}}"></shadow>`, "text/xml").firstChild);
+                };
+
+                if (input.variable) {
+                  if (typeof input.variable === "function") (input.variable = input.variable());
+
+                  if (!Blocks[`shadow_variable_${token}`]) {
+                    Blocks[`shadow_variable_${token}`] = {
+                      layout: "VARIABLE",
+                      fields: {
+                        VARIABLE: {
+                          type: "variable"
+                        }
+                      },
+                      color,
+                      output: true,
+
+                      generator: ({ VARIABLE }) => [
+                        VARIABLE,
+                        "atomic"
+                      ]
+                    };
+                  };
+
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_variable_${escapeXml(token)}"><field name="VARIABLE">${input.variable}</field></shadow>`, "text/xml").firstChild);
                 };
 
                 if (input.shadow) {
                   if (typeof input.shadow === "function") (input.shadow = input.shadow());
 
-                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="${((typeof input.shadow.type === "function") ? input.shadow.type() : (input.shadow.type || "text")).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")}">${(typeof input.shadow.content === "function") ? input.shadow.content() : (input.shadow.content || "")}</shadow>`, "text/xml").firstChild);
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_${escapeXml((typeof input.shadow.type === "function") ? input.shadow.type() : (input.shadow.type || "text"))}">${(typeof input.shadow.content === "function") ? input.shadow.content() : (input.shadow.content || "")}</shadow>`, "text/xml").firstChild);
                 };
               } else if (field) {
                 const dummy = this.appendDummyInput();
@@ -63,24 +122,34 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       translate((typeof field.default === "function") ? field.default() : (field.default || "")),
                       ...(field.validator) ? [field.validator] : []
                     ]), token);
+
                     break;
                   case "multiline":
+                    if (!Blockly.FieldMultilineInput) require("./fields/FieldMultilineInput.js")(Blockly);
+
                     dummy.appendField(new Blockly.FieldMultilineInput(...[
                       translate((typeof field.default === "function") ? field.default() : (field.default || "")),
                       ...(field.validator) ? [field.validator] : []
                     ]), token);
+
                     break;
                   case "dropdown":
+                    if (typeof field.options === "function") (field.options = field.options());
+
                     dummy.appendField(new Blockly.FieldDropdown(...[
-                      Object.entries(field.options).map(([name, text]) => [translate((typeof text === "function") ? text() : text), (typeof name === "function") ? name() : name]),
+                      ((Array.isArray(field.options)) ? field.options.map((option) => [option, option]) : Object.entries(field.options)).map(([name, text]) => [translate((typeof text === "function") ? text() : text), (typeof name === "function") ? name() : name]),
                       ...(field.validator) ? [field.validator] : []
                     ]), token);
+
+                    if (field.default) this.setFieldValue((typeof field.default === "function") ? field.default() : field.default, token);
+
                     break;
                   case "variable":
                     dummy.appendField(new Blockly.FieldVariable(...[
                       translate((typeof field.default === "function") ? field.default() : (field.default || "")),
                       ...(field.validator) ? [field.validator] : []
                     ]), token);
+
                     break;
                   default:
                     dummy.appendField(translate(token));
@@ -95,6 +164,8 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
             });
           };
 
+          if ((typeof hat === "function") ? hat() : hat) this.setStyle("hat_blocks");
+
           if (!output) {
             if ((typeof previous === "function") ? previous() : previous) this.setPreviousStatement(true, null);
             if ((typeof next === "function") ? next() : next) this.setNextStatement(true, null);
@@ -107,7 +178,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
             this.setOutput(true, (output === true) ? null : (([String, Number, Boolean, Array, Object].includes(output)) ? output.name : output));
           };
 
-          this.setColour((color != null) ? ((typeof color === "function") ? color() : color) : (((toolbox) => toolbox.contents_ || toolbox.contents.values())(Blockly.getMainWorkspace().getToolbox()).find((category) => category.toolboxItemDef_.contents?.some((block) => block.type === name))?.toolboxItemDef_?.colour || "#000000"));
+          this.setColour(color);
           this.setInputsInline((typeof inline === "function") ? inline() : inline);
           this.setDeletable((typeof deletable === "function") ? deletable() : deletable);
           this.setTooltip(translate((typeof tooltip === "function") ? tooltip() : tooltip));
@@ -116,7 +187,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
           this.inputList.forEach((input) => {
             if (input.connection?.shadowDom || !Array.isArray(input.connection?.check) || input.connection.check.every((check) => !["String", "Number"].includes(check))) return;
 
-            input.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="${((input.connection.check?.length === 1) && (input.connection.check[0] === "Number")) ? "number" : "string"}"><field name="${((input.connection.check?.length === 1) && (input.connection.check[0] === "Number")) ? "NUMBER" : "TEXT"}"></field></shadow>`, "text/xml").firstChild);
+            input.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_${((input.connection.check?.length === 1) && (input.connection.check[0] === "Number")) ? "number" : "string"}"><field name="${((input.connection.check?.length === 1) && (input.connection.check[0] === "Number")) ? "NUMBER" : "TEXT"}"></field></shadow>`, "text/xml").firstChild);
           });
         }
       };
@@ -177,7 +248,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
           if (!output) return code;
 
           return (Array.isArray(code)) ? [
-            (code[1]?.toLowerCase() !== "nugget") ? code[0] : `(() => {\n${code[0].split("\n").map((line) => "  " + line).join("\n")}\n})()`,
+            (code[1]?.toLowerCase() !== "nugget") ? code[0] : `await (async () => {\n${code[0].split("\n").map((line) => "  " + line).join("\n")}\n})()`,
             languageGenerator[`ORDER_${(code[1]?.toLowerCase().replaceAll("nugget", "") || "NONE").toUpperCase()}`]
           ] : [
             code,
@@ -218,39 +289,43 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
     }
   });
 
-  Blocks["string"] = {
-    layout: "TEXT",
-    fields: {
-      TEXT: {
-        type: "text"
-      }
-    },
-    output: true,
+  if (!Blocks["shadow_string"]) {
+    Blocks["shadow_string"] = {
+      layout: "TEXT",
+      fields: {
+        TEXT: {
+          type: "text"
+        }
+      },
+      output: true,
 
-    generator: ({ TEXT = `""` }) => [
-      `"${TEXT}"`,
-      "atomic"
-    ]
+      generator: ({ TEXT }) => [
+        `"${TEXT.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
+        "atomic"
+      ]
+    };
   };
 
-  Blocks["number"] = {
-    layout: "NUMBER",
-    fields: {
-      NUMBER: {
-        type: "text",
-        default: "0",
-        validator: (value) => {
-          if (!value) return "0";
-          if (/^-?\d*\.?\d*$/.test(value)) return value;
+  if (!Blocks["shadow_number"]) {
+    Blocks["shadow_number"] = {
+      layout: "NUMBER",
+      fields: {
+        NUMBER: {
+          type: "text",
+          default: "0",
+          validator: (value) => {
+            if (!value) return "0";
+            if (/^-?\d*\.?\d*$/.test(value)) return value;
+          }
         }
-      }
-    },
-    output: Number,
+      },
+      output: Number,
 
-    generator: ({ NUMBER = 0 }) => [
-      NUMBER,
-      "atomic"
-    ]
+      generator: ({ NUMBER }) => [
+        NUMBER,
+        "atomic"
+      ]
+    };
   };
 
   return Blocks;
