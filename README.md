@@ -2,6 +2,10 @@
 
 If you've ever used Blockly before, you'd know what kind of pain it is to use. Especially crafting your own blocks. You're not alone. Blockly Fluid is the DX-focused adapter of defining blocks with their own generators.
 
+## See it in action!
+
+https://yolkweb.org
+
 ## Installation
 
 ### Node.js/Deno/Bun
