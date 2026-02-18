@@ -89,7 +89,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                 if (input.variable) {
                   if (typeof input.variable === "function") (input.variable = input.variable());
 
-                  const shadowVariableName = `shadow_variable_${name.length}_${name}`;
+                  const shadowVariableName = `shadow_variable_${name}`;
 
                   if (!Blocks[shadowVariableName]) {
                     Blocks[shadowVariableName] = {
