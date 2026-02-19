@@ -254,12 +254,18 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
             let current = hatBlock.getNextBlock();
 
             while (current) {
-              code += (languageGenerator.forBlock[current.type]) ? languageGenerator.forBlock[current.type](current, languageGenerator) : "";
+              code += (
+                (
+                  (languageGenerator.forBlock[current.type])
+                    ? dedent(languageGenerator.forBlock[current.type](current, languageGenerator))
+                    : ""
+                ) + "\n\n"
+              );
 
               current = current.getNextBlock();
             };
 
-            return code;
+            return code.replace(/\n+$/, "");
           };
         };
 
