@@ -264,16 +264,16 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
         };
 
         languageGenerator.forBlock[name] = (block) => (((code) => {
-          if (!output) return code;
+          if (!output) return dedent(code);
 
           return (Array.isArray(code)) ? [
-            (code[1]?.toLowerCase() !== "nugget") ? code[0] : `await (async () => {\n${code[0].split("\n").map((line) => "  " + line).join("\n")}\n})()`,
+            (code[1]?.toLowerCase() !== "nugget") ? dedent(code[0]) : `await (async () => {\n${dedent(code[0]).split("\n").map((line) => "  " + line).join("\n")}\n})()`,
             languageGenerator[`ORDER_${(code[1]?.toLowerCase().replaceAll("nugget", "") || "NONE").toUpperCase()}`]
           ] : [
-            code,
+            dedent(code),
             languageGenerator.ORDER_NONE
           ];
-        })(dedent((typeof blockGenerator === "function") ? blockGenerator(...[
+        })((typeof blockGenerator === "function") ? blockGenerator(...[
           ...((values) => {
             if (!Object.keys(values).length) return [];
 
@@ -297,7 +297,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
               } : {}
             }), {}),
           }), languageGenerator
-        ]) : blockGenerator)));
+        ]) : blockGenerator));
       });
 
       return true;
