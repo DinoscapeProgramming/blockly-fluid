@@ -1,15 +1,24 @@
-module.exports = (strings, ...values) => {
-  let text = String.raw({ raw: strings }, ...values);
+module.exports = (text) => {
+  const lines = text.split("\n");
 
-  text = text.replace(/^\n/, "").replace(/\n$/, "");
+  const firstLine = lines.find((line) => line.trim().length > 0);
 
-  const indent = text.match(/^[ \t]*(?=\S)/gm);
+  if (!firstLine) return text;
 
-  if (indent) {
-    const minimumIndent = Math.min(...indent.map(i => i.length));
+  const indentMatch = firstLine.match(/^[ \t]*/);
+  const indentSize = (indentMatch) ? indentMatch[0].length : 0;
 
-    text = text.replace(new RegExp(`^[ \\t]{${minimumIndent}}`, "gm"), "");
-  };
+  if (indentSize === 0) return text;
 
-  return text;
+  return (
+    lines
+      .map((line) => (
+        (line.startsWith(" ".repeat(indentSize)))
+          ? line.slice(indentSize)
+          : line
+      ))
+      .join("\n")
+      .replace(/^\n/, "")
+      .replace(/\n\s*$/, "")
+  );
 };
