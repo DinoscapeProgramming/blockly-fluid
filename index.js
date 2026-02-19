@@ -263,7 +263,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
           };
         };
 
-        languageGenerator.forBlock[name] = (block) => dedent(((code) => {
+        languageGenerator.forBlock[name] = (block) => (((code) => {
           if (!output) return code;
 
           return (Array.isArray(code)) ? [
@@ -273,7 +273,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
             code,
             languageGenerator.ORDER_NONE
           ];
-        })((typeof blockGenerator === "function") ? blockGenerator(...[
+        })(dedent((typeof blockGenerator === "function") ? blockGenerator(...[
           ...((values) => {
             if (!Object.keys(values).length) return [];
 
@@ -297,7 +297,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
               } : {}
             }), {}),
           }), languageGenerator
-        ]) : blockGenerator));
+        ]) : blockGenerator)));
       });
 
       return true;
