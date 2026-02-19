@@ -257,7 +257,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
               code += (
                 (
                   (languageGenerator.forBlock[current.type])
-                    ? dedent(languageGenerator.forBlock[current.type](current, languageGenerator))
+                    ? languageGenerator.forBlock[current.type](current, languageGenerator).trim()
                     : ""
                 ) + "\n\n"
               );
