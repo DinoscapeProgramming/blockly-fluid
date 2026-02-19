@@ -128,6 +128,13 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                     ]), token);
 
                     break;
+                  case "number":
+                    dummy.appendField(new Blockly.FieldNumber(...[
+                      translate((typeof field.default === "function") ? field.default() : (field.default || 0)),
+                      ...(field.validator) ? [field.validator] : []
+                    ]), token);
+
+                    break;
                   case "multiline":
                     if (!Blockly.FieldMultilineInput) require("./fields/FieldMultilineInput.js")(Blockly);
 
@@ -315,14 +322,8 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
       layout: "NUMBER",
       fields: {
         NUMBER: {
-          type: "text",
-          default: "0",
-          validator: (value) => {
-            if (!value) return "0";
-            if (/^-?\d*\.?\d*$/.test(value)) return value;
-
-            return "0";
-          }
+          type: "number",
+          default: 0
         }
       },
       output: Number,
