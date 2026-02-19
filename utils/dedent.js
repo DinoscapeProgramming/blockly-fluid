@@ -1,4 +1,6 @@
 module.exports = (text) => {
+  if (typeof text !== "string") return text;
+
   const lines = text.split("\n");
 
   const firstLine = lines.find((line) => line.trim().length > 0);
