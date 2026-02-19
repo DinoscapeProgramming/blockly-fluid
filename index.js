@@ -1,7 +1,12 @@
+const dedent = require("./utils/dedent.js");
 const escapeXml = require("./utils/escapeXml.js");
 
 module.exports = (Blockly, { generator: languageGeneratorFallback, generators: languageGenerators = {}, translate = (text) => text } = {}) => {
   const Blocks = new Proxy({}, {
+    get(_, name) {
+      return Blockly.Blocks[name];
+    },
+
     set(_, name, configuration = {}) {
       if (typeof configuration === "function") (configuration = configuration());
 
@@ -131,6 +136,9 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                   case "number":
                     dummy.appendField(new Blockly.FieldNumber(...[
                       translate((typeof field.default === "function") ? field.default() : (field.default || 0)),
+                      (typeof field.minimum === "function") ? field.minimum() : (field.minimum || null),
+                      (typeof field.maximum === "function") ? field.maximum() : (field.maximum || null),
+                      (typeof field.stepSize === "function") ? field.stepSize() : (field.stepSize || null),
                       ...(field.validator) ? [field.validator] : []
                     ]), token);
 
@@ -255,7 +263,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
           };
         };
 
-        languageGenerator.forBlock[name] = (block) => (((code) => {
+        languageGenerator.forBlock[name] = (block) => dedent(((code) => {
           if (!output) return code;
 
           return (Array.isArray(code)) ? [
@@ -293,10 +301,6 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
       });
 
       return true;
-    },
-
-    get(_, name) {
-      return Blockly.Blocks[name];
     }
   });
 
