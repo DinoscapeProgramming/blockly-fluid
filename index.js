@@ -320,6 +320,8 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
           validator: (value) => {
             if (!value) return "0";
             if (/^-?\d*\.?\d*$/.test(value)) return value;
+
+            return "0";
           }
         }
       },
