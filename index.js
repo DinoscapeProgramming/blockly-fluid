@@ -157,7 +157,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
                     dummy.appendField(new Blockly.FieldDropdown(...[
                       ((Array.isArray(field.options)) ? field.options.map((option) => [option, option]) : Object.entries(field.options)).map(([name, text]) => (
-                        ((typeof name === "symbol") && (name.description.toLowerCase() === "separator"))
+                        ((name.toLowerCase().startsWith("separator")) && (text === true))
                           ? "separator"
                           : [
                             translate((typeof text === "function") ? text() : text),
