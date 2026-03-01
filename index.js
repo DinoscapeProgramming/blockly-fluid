@@ -57,7 +57,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
                   input.check = input.check.map((check) => [null, "null"].includes(check) ? "Null" : ((check === "undefined") ? "Undefined" : ([String, Number, Boolean, Array, Object].includes(check) ? check.name : check)));
 
-                  valueInput.setCheck(input.check || null);
+                  valueInput.setCheck(input.check);
                 } else {
                   valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_string"><field name="TEXT"></field></shadow>`, "text/xml").firstChild);
                 };
@@ -82,7 +82,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       output: true,
 
                       generator: ({ DROPDOWN }) => [
-                        (input.check === "Number") ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
+                        (input.check[0] === "Number") ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
                         "atomic"
                       ]
                     };
