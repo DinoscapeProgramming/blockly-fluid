@@ -82,7 +82,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       output: true,
 
                       generator: ({ DROPDOWN }) => [
-                        `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
+                        (input.check === "NUMBER") ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
                         "atomic"
                       ]
                     };
@@ -235,7 +235,10 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
             Blockly.Python,
             Blockly.Lua,
             Blockly.PHP
-          ].filter(Boolean).map((codeGenerator) => [codeGenerator.name_, codeGenerator])),
+          ].filter(Boolean).map((codeGenerator) => [
+            codeGenerator.name_,
+            codeGenerator
+          ])),
           ...languageGenerators,
           ...{
             Fallback: languageGeneratorFallback
@@ -304,7 +307,22 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
               ])),
               ...(input.name) ? {
                 [input.name]: (({
-                  [Blockly.INPUT_VALUE]: () => languageGenerator.valueToCode(block, input.name, languageGenerator.ORDER_ATOMIC),
+                  [Blockly.INPUT_VALUE]: () => {
+                    const value = languageGenerator.valueToCode(block, input.name, languageGenerator.ORDER_ATOMIC);
+
+                    if (Object.prototype.toString.call(inputs[input.name].options) === "[object Object]") {
+                      return `((${
+                        JSON.stringify(
+                          Object.fromEntries(
+                            Object.entries(inputs[input.name].options)
+                              .map((option) => option.reverse())
+                          ), null, 2
+                        )
+                      })[${value}] || ${value})`;
+                    };
+
+                    return value;
+                  },
                   [Blockly.NEXT_STATEMENT]: () => languageGenerator.statementToCode(block, input.name)
                 })[input.type] || (() => null))()
               } : {}
