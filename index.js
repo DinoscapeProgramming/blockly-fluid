@@ -82,7 +82,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       output: true,
 
                       generator: ({ DROPDOWN }) => [
-                        (input.check === "NUMBER") ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
+                        (input.check === "Number") ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
                         "atomic"
                       ]
                     };
