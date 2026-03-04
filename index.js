@@ -82,7 +82,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       output: true,
 
                       generator: ({ DROPDOWN }) => [
-                        (input.check[0] === "Number") ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
+                        (input.check.includes("Number") && ((Array.isArray(input.options)) ? input.options : Object.keys(input.options)).every((optionId) => !isNaN(optionId))) ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
                         "atomic"
                       ]
                     };
@@ -167,7 +167,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       ...(field.validator) ? [field.validator] : []
                     ]), token);
 
-                    if (field.default) this.setFieldValue((typeof field.default === "function") ? field.default() : field.default, token);
+                    if (field.default) this.setFieldValue(((typeof field.default === "function") ? field.default() : field.default).toString(), token);
 
                     break;
                   case "variable":
@@ -201,7 +201,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
             this.setPreviousStatement(false);
             this.setNextStatement(false);
-            this.setOutput(true, (output === true) ? null : (([String, Number, Boolean, Array, Object].includes(output)) ? output.name : output));
+            this.setOutput(true, (output === true) ? null : (([String, Number, Boolean, Array, Object].includes(output)) ? output.name : ((Array.isArray(output)) ? output.map((type) => ([String, Number, Boolean, Array, Object].includes(type)) ? type.name : type) : output)));
           };
 
           this.setColour(color);
