@@ -1,7 +1,8 @@
-module.exports = (Blockly) => {
+module.exports = (Blockly) => (
   class FieldMultilineInput extends Blockly.Field {
-    constructor(text) {
-      super(text);
+    constructor() {
+      super(...arguments);
+
       this.multiline = true;
     };
 
@@ -30,7 +31,5 @@ module.exports = (Blockly) => {
 
       Blockly.DropDownDiv.showPositionedByField(this, this.sourceBlock_);
     };
-  };
-
-  Blockly.fieldRegistry.register("field_multiline_input", FieldMultilineInput);
-};
+  }
+);

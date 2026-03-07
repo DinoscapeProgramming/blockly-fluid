@@ -63,6 +63,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                 };
 
                 if (input.options) {
+                  if (typeof input.search === "function") (input.search = input.search());
                   if (typeof input.default === "function") (input.default = input.default());
                   if (typeof input.options === "function") (input.options = input.options());
 
@@ -74,6 +75,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       fields: {
                         DROPDOWN: {
                           type: "dropdown",
+                          search: input.search,
                           default: input.default,
                           options: input.options
                         }
@@ -153,9 +155,10 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
                     break;
                   case "dropdown":
+                    if (typeof field.search === "function") (field.search = field.search());
                     if (typeof field.options === "function") (field.options = field.options());
 
-                    dummy.appendField(new Blockly.FieldDropdown(...[
+                    dummy.appendField(new ((field.search) ? require("./fields/FieldSearchDropdown.js")(Blockly) : Blockly.FieldDropdown)(...[
                       ((Array.isArray(field.options)) ? field.options.map((option) => [option, option]) : Object.entries(field.options)).map(([name, text]) => (
                         ((name.toLowerCase().startsWith("separator")) && [true, name].includes(text))
                           ? "separator"
