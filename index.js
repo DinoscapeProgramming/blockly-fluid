@@ -84,7 +84,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                       output: true,
 
                       generator: ({ DROPDOWN }) => [
-                        (input.check.includes("Number") && ((Array.isArray(input.options)) ? input.options : Object.keys(input.options)).every((optionId) => !isNaN(optionId))) ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
+                        (input.check.includes("Number") && ((Array.isArray(input.options)) ? input.options : Object.keys(input.options)).filter((optionId) => !optionId.toLowerCase().startsWith("SEPARATOR")).every((optionId) => !isNaN(optionId))) ? DROPDOWN : `"${DROPDOWN.replaceAll("\\", "\\\\").replaceAll(`"`, `\\"`)}"`,
                         "atomic"
                       ]
                     };
@@ -318,7 +318,10 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
                         JSON.stringify(
                           Object.fromEntries(
                             Object.entries(inputs[input.name].options)
-                              .map((option) => option.reverse())
+                              .map((option) => [
+                                option[1],
+                                (inputs[input.name].check.includes("Number") && ((Array.isArray(inputs[input.name].options)) ? inputs[input.name].options : Object.keys(inputs[input.name].options)).filter((optionId) => !optionId.toLowerCase().startsWith("SEPARATOR")).every((optionId) => !isNaN(optionId))) ? Number(option[0]) : option[0]
+                              ])
                           ), null, 2
                         )
                       })[${value}] || ${value})`;
