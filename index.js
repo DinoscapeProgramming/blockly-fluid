@@ -48,14 +48,14 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
               if (input) {
                 if (input.check === "Color") (input.check = "Colour");
-                if ((typeof input.check === "function") && ![String, Number, Boolean, Array, Object].includes(input.check)) (input.check = input.check());
+                if ((typeof input.check === "function") && !["String", "Number", "Boolean", "Array", "Object"].includes(input.check.name)) (input.check = input.check());
 
                 const valueInput = this.appendValueInput(token)
 
                 if (input.check) {
                   if (!Array.isArray(input.check)) (input.check = [input.check]);
 
-                  input.check = input.check.map((check) => [null, "null"].includes(check) ? "Null" : ((check === "undefined") ? "Undefined" : ([String, Number, Boolean, Array, Object].includes(check) ? check.name : check)));
+                  input.check = input.check.map((check) => [null, "null"].includes(check) ? "Null" : ((check === "undefined") ? "Undefined" : (["String", "Number", "Boolean", "Array", "Object"].includes(check?.name) ? check.name : check)));
 
                   valueInput.setCheck(input.check);
                 } else {
