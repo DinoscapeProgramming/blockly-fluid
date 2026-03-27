@@ -59,7 +59,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
                   valueInput.setCheck(input.check);
                 } else {
-                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_string"><field name="TEXT"></field></shadow>`, "text/xml").firstChild);
+                  valueInput.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_string"></shadow>`, "text/xml").firstChild);
                 };
 
                 if (input.options) {
@@ -216,7 +216,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
           this.inputList.forEach((input) => {
             if (input.connection?.shadowDom || !Array.isArray(input.connection?.check) || input.connection.check.every((check) => !["String", "Number"].includes(check))) return;
 
-            input.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_${((input.connection.check?.length === 1) && (input.connection.check[0] === "Number")) ? "number" : "string"}"><field name="${((input.connection.check?.length === 1) && (input.connection.check[0] === "Number")) ? "NUMBER" : "TEXT"}"></field></shadow>`, "text/xml").firstChild);
+            input.connection.setShadowDom(new DOMParser().parseFromString(`<shadow type="shadow_${((input.connection.check?.length === 1) && (input.connection.check[0] === "Number")) ? "number" : "string"}"></shadow>`, "text/xml").firstChild);
           });
         }
       };
