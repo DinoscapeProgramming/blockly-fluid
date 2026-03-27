@@ -200,11 +200,17 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
             if ((typeof next === "function") ? next() : next) this.setNextStatement(true, null);
           } else {
             if (output === "Color") (output = "Colour");
-            if ((typeof output === "function") && ![String, Number, Boolean, Array, Object].includes(output)) (output = output());
+            if ((typeof output === "function") && !["String", "Number", "Boolean", "Array", "Object"].includes(output.name)) (output = output());
 
             this.setPreviousStatement(false);
             this.setNextStatement(false);
-            this.setOutput(true, (output === true) ? null : (([String, Number, Boolean, Array, Object].includes(output)) ? output.name : ((Array.isArray(output)) ? output.map((type) => ([String, Number, Boolean, Array, Object].includes(type)) ? type.name : type) : output)));
+
+            this.setOutput(true, (output === true) ? null : ((["String", "Number", "Boolean", "Array", "Object"].includes(output?.name)) ? output.name : ((Array.isArray(output)) ? output.map((type) => {
+              if (type === "Color") (type = "Colour");
+              if ((typeof type === "function") && !["String", "Number", "Boolean", "Array", "Object"].includes(type.name)) (type = type());
+
+              return (["String", "Number", "Boolean", "Array", "Object"].includes(type?.name)) ? type.name : type;
+            }) : output)));
           };
 
           this.setColour(color);
