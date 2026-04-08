@@ -258,10 +258,19 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
         if (!languageGenerator.uniqueVariable) {
           languageGenerator.uniqueVariable = (variable) => {
-            return languageGenerator.nameDB_.getDistinctName(
+            if (variable) return languageGenerator.nameDB_.getDistinctName(
               variable,
               Blockly.VARIABLE_CATEGORY_NAME
             );
+
+            return new Proxy({}, {
+              get(_, property) {
+                return languageGenerator.nameDB_.getDistinctName(
+                  property,
+                  Blockly.VARIABLE_CATEGORY_NAME
+                );
+              }
+            });
           };
         };
 
