@@ -1,6 +1,6 @@
 {
   "name": "blockly-fluid",
-  "version": "1.4.32",
+  "version": "1.4.33",
   "description": "A flexible proxy wrapper for Blockly blocks.",
   "main": "index.js",
   "scripts": {

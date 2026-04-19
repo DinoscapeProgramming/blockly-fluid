@@ -256,6 +256,17 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
 
         if (!languageGenerator) return;
 
+        if (!languageGenerator.variables) {
+          languageGenerator.variables = new Proxy({}, {
+            get(_, property) {
+              return languageGenerator.nameDB_.getDistinctName(
+                property,
+                Blockly.VARIABLE_CATEGORY_NAME
+              );
+            }
+          });
+        };
+
         if (!languageGenerator.uniqueVariable) {
           languageGenerator.uniqueVariable = (variable) => {
             if (variable) return languageGenerator.nameDB_.getDistinctName(
@@ -263,14 +274,7 @@ module.exports = (Blockly, { generator: languageGeneratorFallback, generators: l
               Blockly.VARIABLE_CATEGORY_NAME
             );
 
-            return new Proxy({}, {
-              get(_, property) {
-                return languageGenerator.nameDB_.getDistinctName(
-                  property,
-                  Blockly.VARIABLE_CATEGORY_NAME
-                );
-              }
-            });
+            return languageGenerator.variables;
           };
         };
 
